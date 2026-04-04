@@ -6,6 +6,23 @@ import React from 'react';
 import Navbar from '@/components/Theme1/Navbar'; 
 import Footer from '@/components/Theme1/Footer'; 
 
+// ─── Retry Helper ─────────────────────────────────────────────────────────────
+async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 3, delay = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) return await response.json(); 
+      if (i === retries - 1) return null; 
+      throw new Error(`Status ${response.status}`);
+    } catch (error) {
+      if (i === retries - 1) return null;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  return null;
+}
+// ──────────────────────────────────────────────────────────────────────────────
+
 type Props = {
   params: Promise<{ id: string }>;
 };
@@ -15,36 +32,33 @@ export default async function TourDetail({ params }: Props) {
 
   // 1. THE HEADLESS CONNECTION
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-  const API_KEY = process.env.AGENCY_API_KEY || '';
+  const AGENCY_ID = process.env.NEXT_PUBLIC_AGENCY_ID || '';
+  
+  // (Optional) Keeping API_KEY just in case your TourClient uses it to submit Bookings
+  const API_KEY = process.env.AGENCY_API_KEY || ''; 
 
-  // 2. Fetch the specific tour from your SaaS Engine
-  const res = await fetch(`${API_URL}/api/public/tours/${id}`, {
-    headers: { 
-      'x-api-key': API_KEY,
-      'Content-Type': 'application/json' 
-    },
-    cache: 'no-store'
-});
+  let data = null;
 
-  // --- THE SAFETY NET ---
-  // Check if the backend actually sent JSON before trying to parse it
-  const contentType = res.headers.get("content-type");
-  if (!contentType || !contentType.includes("application/json")) {
-    console.error("Backend sent HTML instead of JSON! Check if the backend is running on port 3000 and the route [id]/route.ts exists.");
-    notFound(); // Gracefully show the 404 page instead of crashing
+  try {
+    // 2. Fetch the specific tour from your SaaS Engine (Correct URL + Agency ID)
+    data = await fetchWithRetry(
+      `${API_URL}/public/tours/${id}?agencyId=${AGENCY_ID}`, 
+      { next: { revalidate: 0 } }
+    );
+  } catch (error) {
+    console.error("Failed to fetch tour detail:", error);
   }
 
-  const data = await res.json();
-
-  // If the API key is wrong, or the tour doesn't exist, show 404
-  if (!data.success || !data.tour) {
+  // 3. THE SAFETY NET
+  // If the API fails, or the tour doesn't exist, show 404
+  if (!data || !data.success || !data.tour || !data.agency) {
     notFound();
   }
 
   const tour = data.tour;
   const tenant = data.agency;
 
-  // 3. Setup the theme variables
+  // 4. Setup the theme variables
   const globalTheme = {
     '--theme-primary': tenant.primaryColor || '#003580',
     '--theme-accent': tenant.accentColor || '#FF8C00',
@@ -86,9 +100,10 @@ export default async function TourDetail({ params }: Props) {
           tour={tour} 
           fixedDate={calculatedFixedDate} 
           isPro={tenant.planTier === 'PRO'} 
-          // 4. IMPORTANT: Pass these down so the BookingForm can use them!
+          // IMPORTANT: Passed down so the BookingForm can use them!
           apiKey={API_KEY}
           apiUrl={API_URL}
+        
         />
       </div>
 
