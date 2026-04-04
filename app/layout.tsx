@@ -5,11 +5,15 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import ScrollToTop from '@/components/ScrollToTop';
 import WhatsAppButton from '@/components/WhatsAppButton';
 
+
 // --- FONT CONFIGURATIONS ---
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 const poppins = Poppins({ weight: ["400", "500", "600", "700", "800", "900"], variable: "--font-poppins", subsets: ["latin"] });
 const montez = Montez({ weight: ["400"], variable: "--font-montez", subsets: ["latin"] });
+
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "Fast Travels | Powered by Travelo",
@@ -27,9 +31,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   try {
     // FIX 1 & 2: Use the exact /theme endpoint we built, and pass the agencyId!
     const res = await fetch(`${API_URL}/theme?agencyId=${AGENCY_ID}`, {
-      cache: 'no-store'
+      next: { revalidate: 0 } // Iska matlab hai har request par naya data lao
     });
-    
     // Parse the JSON data we tested in the browser
     const tenant = await res.json();
 
