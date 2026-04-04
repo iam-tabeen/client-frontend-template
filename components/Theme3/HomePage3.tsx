@@ -15,44 +15,30 @@ import TestimonialsSection3 from '@/components/Theme3/TestimonialSection3';
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage3({ agencyId }: { agencyId: string }) {
-  
-  // 1. THE HEADLESS CONNECTION
-  // We use fetch() to talk to your SaaS engine via the API Key.
-  // Replace this string with the actual key you generated!
- // Add "|| ''" so TypeScript knows it will always be a string
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-const API_KEY = process.env.AGENCY_API_KEY || '';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const activeAgencyId = agencyId || process.env.NEXT_PUBLIC_AGENCY_ID;
 
-  // 2. FETCH THE DATA
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/public/tours?agencyId=${process.env.NEXT_PUBLIC_AGENCY_ID}`, {
-    headers: {
-      'x-api-key': process.env.AGENCY_API_KEY || '' // Ensure this matches your backend header name
-    },
+  // FETCH THE DATA
+  const res = await fetch(`${API_URL}/public/tours?agencyId=${activeAgencyId}`, {
     next: { revalidate: 0 }
   });
 
   const data = await res.json();
 
-  // If the API key is wrong, or the agency is suspended, show the error
   if (!data.success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-800">
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-black text-red-500">Access Denied</h1>
-          <p className="font-medium text-gray-500">{data.error}</p>
+          <p className="font-medium text-gray-500">{data.error || "Agency could not be loaded."}</p>
         </div>
       </div>
     );
   }
 
-  // 3. DESTRUCTURE THE PAYLOAD
-  // 3. DESTRUCTURE THE PAYLOAD
   const { agency } = data;
-  
-  // Safely extract tours, and default to an empty array if there are none!
   const tours = agency?.tours || [];
 
-  // 4. MAP THE API COLORS TO GLOBAL VARIABLES
   const globalTheme = {
     '--theme-primary': agency.primaryColor || '#003580',
     '--theme-accent': agency.accentColor || '#FF8C00',
@@ -65,41 +51,17 @@ const API_KEY = process.env.AGENCY_API_KEY || '';
   } as React.CSSProperties;
 
   return (
-    <main className="min-h-screen bg-white"  style={globalTheme}>
-      
-      {/* Clean components using the API data! */}
-      <Navbar3 
-        companyName={agency.companyName} 
-        logoUrl={agency.logoUrl} 
-      />
-      <HeroSection3></HeroSection3>  
-      <ProcessSection3></ProcessSection3>
-
-      <AboutSection3  />
-
-      {/* TOURS GRID SECTION */}
-    
-<ToursSection3 tours={tours}></ToursSection3>
-     
-
-      
-
-      <GallerySection3></GallerySection3>
-
-      <CounterSection></CounterSection>
-
-      
-
-      <TestimonialsSection3></TestimonialsSection3>
-
-    
-
-      <CtaBanner2></CtaBanner2>
-
-      
-
-      {/* FOOTER */}
-      <Footer companyName={agency.companyName} logoUrl={agency.logoUrl}></Footer>
+    <main className="min-h-screen bg-white" style={globalTheme}>
+      <Navbar3 companyName={agency.companyName} logoUrl={agency.logoUrl} />
+      <HeroSection3 />
+      <ProcessSection3 />
+      <AboutSection3 />
+      <ToursSection3 tours={tours} />
+      <GallerySection3 />
+      <CounterSection />
+      <TestimonialsSection3 />
+      <CtaBanner2 />
+      <Footer companyName={agency.companyName} logoUrl={agency.logoUrl} />
     </main>
   );
 }
