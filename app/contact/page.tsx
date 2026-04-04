@@ -4,31 +4,57 @@ import ContactForm from '@/components/ContactForm';
 import ContactPageBanner2 from '@/components/Theme2/ContactPageBanner2'
 import React from 'react';
 
+// ─── Retry Helper ─────────────────────────────────────────────────────────────
+async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 3, delay = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) return await response.json(); 
+      if (i === retries - 1) return null; 
+      throw new Error(`Status ${response.status}`);
+    } catch (error) {
+      if (i === retries - 1) return null;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  return null;
+}
+// ──────────────────────────────────────────────────────────────────────────────
+
 export const dynamic = 'force-dynamic';
 
 export default async function ContactPage() {
-  // 1. THE HEADLESS CONNECTION: Fetch data from your Backend API instead of Prisma!
+  // 1. THE HEADLESS CONNECTION
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-  const API_KEY = process.env.AGENCY_API_KEY || '';
+  const AGENCY_ID = process.env.NEXT_PUBLIC_AGENCY_ID || '';
 
   let tenant = null;
 
   try {
-    const res = await fetch(`${API_URL}/api/public/tours`, {
-      headers: { 'x-api-key': API_KEY },
-      cache: 'no-store' // Keep it dynamic
-    });
-    const data = await res.json();
+    // 2. Add agencyId to the URL properly
+    const queryParams = new URLSearchParams({ agencyId: AGENCY_ID });
     
-    if (data.success && data.agency) {
+    // 3. Fetch using the public route, no API keys needed!
+    const data = await fetchWithRetry(
+      `${API_URL}/public/tours?${queryParams.toString()}`, 
+      { next: { revalidate: 0 } }
+    );
+    
+    if (data && data.success && data.agency) {
       tenant = data.agency;
     }
   } catch (error) {
-    console.error("Failed to fetch agency data for contact page.");
+    console.error("Failed to fetch agency data for contact page:", error);
   }
 
-  // If the API fails or agency is suspended, don't crash, just return empty/null
-  if (!tenant) return null;
+  // If the API fails or agency is suspended
+  if (!tenant) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        <p className="text-xl font-bold">Failed to load contact information. Check API configuration.</p>
+      </div>
+    );
+  }
 
   // 2. Map the backend colors to your frontend CSS variables
   const globalTheme = {
@@ -46,11 +72,7 @@ export default async function ContactPage() {
     <main className="min-h-screen bg-white" style={globalTheme}>
       <Navbar companyName={tenant.companyName} logoUrl={tenant.logoUrl} />
 
-      <ContactPageBanner2></ContactPageBanner2>
-
-      {/* <div className="or-spacer">
-        <div className="mask"></div>
-      </div> */}
+      <ContactPageBanner2 />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
@@ -107,6 +129,7 @@ export default async function ContactPage() {
 
         </div>
       </div>
+      
       <div className="or-spacer-down">
         <div className="mask"></div>
       </div>
