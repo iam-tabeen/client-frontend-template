@@ -165,7 +165,7 @@ const Navbar = ({ companyName, logoUrl }: NavbarProps) => {
                 </div>
 
                 {/* Desktop Nav */}
-                <nav className="main-menu hidden xl:flex items-center gap-1 mr-auto ml-8">
+                <nav className="main-menu hidden xl:flex items-center gap-1 mr-auto" style={{marginLeft:"6rem"}}>
                   {/* Home */}
                   <div className="group relative">
                     <Link
