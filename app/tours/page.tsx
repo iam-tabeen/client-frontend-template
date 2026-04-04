@@ -74,11 +74,8 @@ export default async function ToursPage({
     
     // We swapped out the standard fetch for our resilient fetchWithRetry
     const data = await fetchWithRetry(
-      `${API_URL}/api/public/tours?${queryParams.toString()}`, 
-      {
-        headers: { 'x-api-key': API_KEY },
-        cache: 'no-store'
-      }
+      `${API_URL}/public/tours?${queryParams.toString()}`, 
+      { next: { revalidate: 0 } }
     );
     
     if (data && data.success && data.agency) {
