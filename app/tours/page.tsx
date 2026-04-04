@@ -63,14 +63,16 @@ export default async function ToursPage({
   const sort = params?.sort || 'newest';
 
   // 1. THE HEADLESS CONNECTION
+  // 1. THE HEADLESS CONNECTION
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-  const API_KEY = process.env.AGENCY_API_KEY || '';
+  const AGENCY_ID = process.env.NEXT_PUBLIC_AGENCY_ID || ''; // ID zaroori hai
 
   let tenant = null;
 
   try {
     // 2. Fetch from your backend API with the new retry logic!
-    const queryParams = new URLSearchParams({ search, sort });
+    // YAHAN AGENCY ID ADD KI HAI:
+    const queryParams = new URLSearchParams({ search, sort, agencyId: AGENCY_ID }); 
     
     // We swapped out the standard fetch for our resilient fetchWithRetry
     const data = await fetchWithRetry(
