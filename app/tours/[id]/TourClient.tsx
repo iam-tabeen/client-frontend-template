@@ -33,6 +33,7 @@ type TourClientProps = {
     isPro?: boolean;
     apiKey: string;
     apiUrl: string;
+    agencyId?: string; // Yeh line add karein ('?' ka matlab hai ke yeh optional hai)
 };
 
 export default function TourClient({ tour, fixedDate, isPro = false, apiKey, apiUrl }: TourClientProps) {

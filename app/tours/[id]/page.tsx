@@ -103,7 +103,7 @@ export default async function TourDetail({ params }: Props) {
           // IMPORTANT: Passed down so the BookingForm can use them!
           apiKey={API_KEY}
           apiUrl={API_URL}
-        
+          agencyId={AGENCY_ID} // Passed just in case client needs it
         />
       </div>
 
