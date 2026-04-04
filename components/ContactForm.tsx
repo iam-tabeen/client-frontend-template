@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { submitContact } from '@/app/actions/contact';
 
-export default function ContactForm() {
+export default function ContactForm({ contactEmail }: { contactEmail?: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -47,6 +47,7 @@ export default function ContactForm() {
       <form action={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
+          <input type="hidden" name="agencyContactEmail" value={contactEmail || ""} />
             <label className="text-xs font-bold text-gray-500 uppercase tracking-widest" style={{fontFamily:"var(--font-poppins)", fontWeight:"500"}}>Full Name</label>
             {/* THE FIX: Added name="name" */}
             <input type="text" name="name" placeholder="Ali Khan" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 outline-none focus:border-blue-400 transition-colors font-medium" required />

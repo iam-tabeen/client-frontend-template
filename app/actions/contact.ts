@@ -7,6 +7,9 @@ export async function submitContact(formData: FormData) {
   const email = formData.get('email') as string;
   const subject = formData.get('subject') as string;
   const message = formData.get('message') as string;
+  
+  // NEW: Get the dynamic email of the agency
+  const agencyContactEmail = formData.get('agencyContactEmail') as string;
 
   try {
     const transporter = nodemailer.createTransport({
@@ -19,8 +22,8 @@ export async function submitContact(formData: FormData) {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: "iamtabeenhaider@gmail.com", // Sends to your inbox
-      replyTo: email, // MAGIC TRICK: Hitting 'Reply' in Gmail replies directly to the client!
+      to: agencyContactEmail || "hello@axiusdigital.com", // Dynamic Email Here!
+      replyTo: email, 
       subject: `📩 New Website Inquiry: ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 24px; border: 1px solid #E5E9F2; border-radius: 16px; background-color: #FAFAFA;">
@@ -44,4 +47,3 @@ export async function submitContact(formData: FormData) {
     throw new Error("Failed to send email");
   }
 }
-

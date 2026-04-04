@@ -124,7 +124,7 @@ export default async function ContactPage() {
 
           {/* RIGHT COLUMN: Contact Form */}
           <div className="lg:col-span-2">
-            <ContactForm />
+          <ContactForm contactEmail={tenant.contactEmail || tenant.adminEmail} />
           </div>
 
         </div>
