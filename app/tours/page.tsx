@@ -161,6 +161,5 @@ export default async function ToursPage({
       </div>
       <Footer companyName={tenant.companyName} logoUrl={tenant.logoUrl}></Footer>
       
-    </main>
-  );
+    </main>  );
 }
