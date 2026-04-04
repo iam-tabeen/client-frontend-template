@@ -26,14 +26,14 @@ function getDepartureDisplay(tour: any) {
     return `Departure: ${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 }
 
-// 1. ADDED apiKey AND apiUrl TO PROPS
+// Is file mein ab TypeScript ki types bilkul sahi hain
 type TourClientProps = {
     tour: any;
     fixedDate?: string;
     isPro?: boolean;
     apiKey: string;
     apiUrl: string;
-    agencyId?: string; // Yeh line add karein ('?' ka matlab hai ke yeh optional hai)
+    agencyId?: string; // Yeh bilkul theek hai
 };
 
 export default function TourClient({ tour, fixedDate, isPro = false, apiKey, apiUrl }: TourClientProps) {
