@@ -30,9 +30,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // 2. FETCH AGENCY BRANDING GLOBALLY
   try {
     // FIX 1 & 2: Use the exact /theme endpoint we built, and pass the agencyId!
-    const res = await fetch(`${API_URL}/theme?agencyId=${AGENCY_ID}`, {
-      next: { revalidate: 0 } // Iska matlab hai har request par naya data lao
-    });
+    // ❌ Galat: `${API_URL}/api/theme...` (Kyunki API_URL mein pehle se /api hai)
+// ✅ Sahi:
+// layout.tsx mein theme fetch karne ke liye:
+const res = await fetch(`${API_URL}/theme?agencyId=${AGENCY_ID}`, {
+  next: { revalidate: 0 }
+});
     // Parse the JSON data we tested in the browser
     const tenant = await res.json();
 

@@ -14,7 +14,7 @@ import TestimonialsSection3 from '@/components/Theme3/TestimonialSection3';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HomePage() {
+export default async function HomePage3({ agencyId }: { agencyId: string }) {
   
   // 1. THE HEADLESS CONNECTION
   // We use fetch() to talk to your SaaS engine via the API Key.
@@ -24,9 +24,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const API_KEY = process.env.AGENCY_API_KEY || '';
 
   // 2. FETCH THE DATA
-  const res = await fetch(`${API_URL}/api/public/tours`, {
-    headers: { 'x-api-key': API_KEY },
-    cache: 'no-store' // Equivalent to force-dynamic
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/public/tours?agencyId=${process.env.NEXT_PUBLIC_AGENCY_ID}`, {
+    headers: {
+      'x-api-key': process.env.AGENCY_API_KEY || '' // Ensure this matches your backend header name
+    },
+    next: { revalidate: 0 }
   });
 
   const data = await res.json();
