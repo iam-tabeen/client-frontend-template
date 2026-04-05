@@ -21,7 +21,7 @@ export async function submitCustomTour(tenantId: string, formData: FormData) {
 
   // 2. SEND TO BACKEND ENGINE VIA API
   try {
-    const response = await fetch(`${API_URL}/api/public/leads`, {
+    const response = await fetch(`${API_URL}/public/leads`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
