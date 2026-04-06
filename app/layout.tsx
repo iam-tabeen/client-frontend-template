@@ -26,6 +26,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   let globalTheme = {} as React.CSSProperties;
   let pixelId = null; // <-- 2. PIXEL ID STORE KARNE KE LIYE VARIABLE
+  let whatsappNum = null; // <-- 1. YEH NAYI LINE ADD KAREIN
 
   // 2. FETCH AGENCY BRANDING GLOBALLY
   try {
@@ -39,6 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       
       // 3. BACKEND SE PIXEL ID GET KIYA
       pixelId = tenant.metaPixelId; 
+      whatsappNum = tenant.whatsappNumber; // <-- 2. YEH NAYI LINE ADD KAREIN
 
       // Map the backend colors to CSS variables
       globalTheme = {
@@ -105,7 +107,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
           
           {/* Because these sit inside the body, they now have access to var(--theme-primary)! */}
-          <WhatsAppButton />
+          {/* Layout mein jahan button render ho raha hai */}
+          <WhatsAppButton phone={whatsappNum} />
           <ScrollToTop />
           
         </ThemeProvider>

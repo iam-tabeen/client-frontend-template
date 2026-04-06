@@ -1,5 +1,7 @@
 import Navbar from '@/components/Theme1/Navbar';
 import TourCard2 from '@/components/Theme2/TourCard2';
+import TourCard3 from '@/components/Theme3/TourCard3';
+import TourCard from '@/components/Theme1/TourCard';
 import Footer from '@/components/Theme1/Footer';
 import TourFilters from '@/components/TourFilters';
 import TourPageBanner2 from '@/components/Theme2/TourPageBanner2'
@@ -140,7 +142,7 @@ export default async function ToursPage({
         {/* Dynamic Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {tenant.tours?.map((tour: any) => (
-            <TourCard2 key={tour.id} tour={tour} />
+            <TourCard3 key={tour.id} tour={tour} />
           ))}
         </div>
 

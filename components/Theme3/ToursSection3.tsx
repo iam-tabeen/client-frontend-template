@@ -67,12 +67,12 @@ export default function ToursSection({ tours = [] }: ToursSectionProps) {
           </div>
         </div>
 
-        {/* Tours Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {tours.slice(0, 3).map((tour: any) => (
-            <TourCard3 key={tour.id} tour={tour} />
-          ))}
-        </div>
+       {/* Tours Section */}
+<div className="flex flex-wrap justify-center items-center gap-6 md:gap-8 max-w-7xl mx-auto">
+  {tours.slice(0, 3).map((tour: any) => (
+    <TourCard3 key={tour.id} tour={tour} />
+  ))}
+</div>
 
         {/* Empty State */}
         {tours.length === 0 && (
