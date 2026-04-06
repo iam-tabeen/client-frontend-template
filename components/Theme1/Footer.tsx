@@ -140,7 +140,7 @@ const Footer = ({ companyName, logoUrl }: FooterProps) => {
       © {new Date().getFullYear()} {companyName}. All rights reserved.
     </div>
     <div 
-      className="border-t mt-2 pt-6 text-center text-xs opacity-100"
+      className="border-t mt-2 pt-2 text-center text-xs opacity-100"
       style={{ borderColor: 'rgba(255,255,255,0.1)' }}
     >
       Powered by <a href="https:/travelotms.com" target="_blank" rel="noopener noref  errer" className="text-blue-500 hover:underline">Travelo TMS</a>
