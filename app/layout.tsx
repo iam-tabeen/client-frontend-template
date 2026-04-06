@@ -4,14 +4,13 @@ import "./globals.css";
 import { ThemeProvider } from '@/components/ThemeProvider';
 import ScrollToTop from '@/components/ScrollToTop';
 import WhatsAppButton from '@/components/WhatsAppButton';
-
+import Script from 'next/script'; // <-- 1. NEXT.JS SCRIPT IMPORT KIYA
 
 // --- FONT CONFIGURATIONS ---
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 const poppins = Poppins({ weight: ["400", "500", "600", "700", "800", "900"], variable: "--font-poppins", subsets: ["latin"] });
 const montez = Montez({ weight: ["400"], variable: "--font-montez", subsets: ["latin"] });
-
 
 export const dynamic = 'force-dynamic';
 
@@ -26,22 +25,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const AGENCY_ID = process.env.NEXT_PUBLIC_AGENCY_ID || '';
 
   let globalTheme = {} as React.CSSProperties;
+  let pixelId = null; // <-- 2. PIXEL ID STORE KARNE KE LIYE VARIABLE
 
   // 2. FETCH AGENCY BRANDING GLOBALLY
   try {
-    // FIX 1 & 2: Use the exact /theme endpoint we built, and pass the agencyId!
-    // ❌ Galat: `${API_URL}/api/theme...` (Kyunki API_URL mein pehle se /api hai)
-// ✅ Sahi:
-// layout.tsx mein theme fetch karne ke liye:
-const res = await fetch(`${API_URL}/theme?agencyId=${AGENCY_ID}`, {
-  next: { revalidate: 0 }
-});
-    // Parse the JSON data we tested in the browser
+    const res = await fetch(`${API_URL}/theme?agencyId=${AGENCY_ID}`, {
+      next: { revalidate: 0 }
+    });
+    
     const tenant = await res.json();
 
-    // Make sure we didn't get an error from the backend
     if (tenant && !tenant.error) {
       
+      // 3. BACKEND SE PIXEL ID GET KIYA
+      pixelId = tenant.metaPixelId; 
+
       // Map the backend colors to CSS variables
       globalTheme = {
         '--theme-primary': tenant.accentColor || '#003580', 
@@ -62,8 +60,46 @@ const res = await fetch(`${API_URL}/theme?agencyId=${AGENCY_ID}`, {
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* 4. META PIXEL SCRIPT INJECTION (Sirf tab chalay ga jab ID mojood ho) */}
+        {pixelId && (
+          <Script
+            id="meta-pixel"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '${pixelId}');
+                fbq('track', 'PageView');
+              `,
+            }}
+          />
+        )}
+      </head>
+
       {/* 3. INJECT THE BACKEND COLORS INTO THE BODY TAG! */}
       <body style={globalTheme} className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montez.variable} antialiased`}>
+        
+        {/* 5. META PIXEL NOSCRIPT FALLBACK (Un browsers k liye jahan JS disable ho) */}
+        {pixelId && (
+          <noscript>
+            <img 
+              height="1" 
+              width="1" 
+              style={{ display: "none" }}
+              src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
+              alt="Meta Pixel"
+            />
+          </noscript>
+        )}
+
         <ThemeProvider attribute="class" defaultTheme="light">
           
           {children}
